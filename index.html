@@ -1,61 +1,478 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
+    <title>Modern Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .dspl {
-            width: 210px;
-            height: 30px;
+        :root {
+            --primary-bg: linear-gradient(135deg, #6e8efb, #a777e3);
+            --calculator-bg: rgba(255, 255, 255, 0.15);
+            --display-bg: rgba(0, 0, 0, 0.25);
+            --button-bg: rgba(255, 255, 255, 0.1);
+            --button-hover: rgba(255, 255, 255, 0.25);
+            --button-active: rgba(255, 255, 255, 0.4);
+            --operator-bg: rgba(255, 165, 0, 0.3);
+            --operator-hover: rgba(255, 165, 0, 0.4);
+            --operator-active: rgba(255, 165, 0, 0.5);
+            --clear-bg: rgba(255, 99, 71, 0.3);
+            --clear-hover: rgba(255, 99, 71, 0.4);
+            --clear-active: rgba(255, 99, 71, 0.5);
+            --text-color: #fff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            --border: 1px solid rgba(255, 255, 255, 0.18);
+            --border-radius: 20px;
+            --transition: all 0.3s ease;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #6e8efb, #a777e3);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #5d7dfa, #9866e0);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            padding: 20px;
+            background-attachment: fixed;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 4px;
+            background: var(--text-color);
+            border-radius: 2px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .calculator-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 50px;
+            width: 100%;
+        }
+
+        .calculator {
+            background: var(--calculator-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            min-width: 320px;
+            transform: translateY(0);
+            transition: var(--transition);
+        }
+
+        .calculator:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(31, 38, 135, 0.5);
+        }
+
+        .display-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .display-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--display-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 1;
+        }
+
+        #display {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 80px;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 2.5rem;
+            text-align: right;
+            padding: 10px 20px;
+            outline: none;
+            cursor: default;
+            letter-spacing: 2px;
+            transition: var(--transition);
+        }
+
+        #display:focus {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
         }
 
         .btns {
-            height: 50px;
-            width: 50px;
+            height: 70px;
+            background: var(--button-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: var(--border);
+            border-radius: 15px;
+            color: var(--text-color);
+            font-size: 1.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btns::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(100%);
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        .btns:hover {
+            background: var(--button-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btns:hover::before {
+            transform: translateY(0);
+        }
+
+        .btns:active {
+            background: var(--button-active);
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btns.operator {
+            background: var(--operator-bg);
+        }
+
+        .btns.operator:hover {
+            background: var(--operator-hover);
+        }
+
+        .btns.operator:active {
+            background: var(--operator-active);
+        }
+
+        .btns.clear {
+            background: var(--clear-bg);
+            grid-column: span 2;
+        }
+
+        .btns.clear:hover {
+            background: var(--clear-hover);
+        }
+
+        .btns.clear:active {
+            background: var(--clear-active);
+        }
+
+        .features {
+            max-width: 500px;
+            background: var(--calculator-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 30px;
+        }
+
+        .features h2 {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .features h2::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background: var(--text-color);
+            border-radius: 2px;
+        }
+
+        .features-list {
+            list-style-type: none;
+            padding: 15px;
+        }
+
+        .features-list li {
+            padding: 12px 20px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+
+        .features-list li:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        .features-list li i {
+            color: #ffcc00;
+            font-size: 1.5rem;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            padding: 20px;
+            width: 100%;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .calculator {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .features {
+            animation: fadeIn 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+
+        .pulse {
+            animation: pulse 0.3s ease;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .calculator-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .calculator {
+                padding: 20px;
+                min-width: 280px;
+            }
+            
+            .btns {
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            #display {
+                height: 70px;
+                font-size: 2rem;
+            }
+            
+            .features h2 {
+                font-size: 1.8rem;
+            }
+            
+            .buttons-grid {
+                gap: 10px;
+            }
         }
     </style>
 </head>
-
 <body>
-
-    <h1>Calculator</h1>
-    <div class="main">
-        <input type="text" id="display" class="dspl" readonly><br>
-        <button class="btns" onclick="press('1')">1</button>
-        <button class="btns" onclick="press('2')">2</button>
-        <button class="btns" onclick="press('3')">3</button>
-        <button class="btns" onclick="press('/')">/</button> <br>
-        <button class="btns" onclick="press('4')">4</button>
-        <button class="btns" onclick="press('5')">5</button>
-        <button class="btns" onclick="press('6')">6</button>
-        <button class="btns" onclick="press('*')">*</button> <br>
-        <button class="btns" onclick="press('7')">7</button>
-        <button class="btns" onclick="press('8')">8</button>
-        <button class="btns" onclick="press('9')">9</button>
-        <button class="btns" onclick="press('-')">-</button> <br>
-        <button class="btns" onclick="press('.')">.</button>
-        <button class="btns" onclick="press('0')">0</button>
-        <button class="btns" onclick="equal()">=</button>
-        <button class="btns" onclick="press('+')">+</button> <br>
-        <button class="btns" onclick="clr()">C</button>
-
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Modern Calculator</h1>
+            <p>Sleek design with glassmorphism effect</p>
+        </header>
+        
+        <div class="calculator-container">
+            <div class="calculator">
+                <div class="display-container">
+                    <input type="text" id="display" class="dspl" readonly>
+                </div>
+                <div class="buttons-grid">
+                    <button class="btns" onclick="press('7')">7</button>
+                    <button class="btns" onclick="press('8')">8</button>
+                    <button class="btns" onclick="press('9')">9</button>
+                    <button class="btns operator" onclick="press('/')">/</button>
+                    <button class="btns" onclick="press('4')">4</button>
+                    <button class="btns" onclick="press('5')">5</button>
+                    <button class="btns" onclick="press('6')">6</button>
+                    <button class="btns operator" onclick="press('*')">×</button>
+                    <button class="btns" onclick="press('1')">1</button>
+                    <button class="btns" onclick="press('2')">2</button>
+                    <button class="btns" onclick="press('3')">3</button>
+                    <button class="btns operator" onclick="press('-')">−</button>
+                    <button class="btns" onclick="press('.')">.</button>
+                    <button class="btns" onclick="press('0')">0</button>
+                    <button class="btns operator" onclick="equal()">=</button>
+                    <button class="btns operator" onclick="press('+')">+</button>
+                    <button class="btns clear" onclick="clr()">C</button>
+                </div>
+            </div>
+            
+            <div class="features">
+                <h2>Features</h2>
+                <ul class="features-list">
+                    <li><i class="fas fa-glass-whiskey"></i> Glassmorphism design with frosted glass effect</li>
+                    <li><i class="fas fa-mobile-alt"></i> Fully responsive layout for all devices</li>
+                    <li><i class="fas fa-bolt"></i> Smooth animations and transitions</li>
+                    <li><i class="fas fa-palette"></i> CSS variables for easy theming</li>
+                    <li><i class="fas fa-hand-pointer"></i> Interactive button states (hover, active)</li>
+                    <li><i class="fas fa-scroll"></i> Custom scrollbar styling</li>
+                    <li><i class="fas fa-sun"></i> Animated gradient background</li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Modern Calculator | Built with HTML, CSS & JavaScript</p>
+        </footer>
     </div>
+
     <script>
         let display = document.querySelector("#display");
+        
         function press(a) {
             display.value += a;
+            display.classList.remove("pulse");
+            void display.offsetWidth;
+            display.classList.add("pulse");
         }
+        
         function equal() {
-            let res = eval(display.value);
-            display.value = res;
+            try {
+                let res = eval(display.value);
+                display.value = res;
+                display.classList.remove("pulse");
+                void display.offsetWidth;
+                display.classList.add("pulse");
+            } catch (e) {
+                display.value = "Error";
+                setTimeout(() => {
+                    display.value = "";
+                    display.classList.add("pulse");
+                }, 1000);
+            }
         }
-        function clr(){
-            display.value="";
+        
+        function clr() {
+            display.value = "";
+            display.classList.remove("pulse");
+            void display.offsetWidth;
+            display.classList.add("pulse");
         }
-
     </script>
 </body>
-
 </html>
